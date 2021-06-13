@@ -9,6 +9,10 @@ list($pwd) = preg_replace('/\/[^\/]+$/', "/", get_included_files());
 $conf_path = $pwd . "conf/common.php";
 include($conf_path);
 
+// Load wekan API
+$wapi_path = $pwd . "libs/wekan_api.php";
+include($wapi_path);
+
 // Get user-input
 $username=$_POST["username"];
 $password=$_POST["password"];
@@ -17,37 +21,22 @@ $error=$_GET['error'];
 // if username and password are provided, try to login.
 if ($username != "" && $password != "") {
 
-    // initilize API call
-    $channel = curl_init(); # initialize curl object
-    curl_setopt($channel, CURLOPT_URL, $wekan_url . "/users/login"); # set url
-    curl_setopt($channel, CURLOPT_RETURNTRANSFER, TRUE); # receive server response
-
     // construct payload (form data)
     $data = array(
         'username' => $username,
         'password' => $password);
     $payload = json_encode($data);
 
-    // Attach encoded JSON string to the POST fields
-    curl_setopt($channel, CURLOPT_POSTFIELDS, $payload);
-    // Set the content type to application/json
-    curl_setopt($channel, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+    // Make API call
+    $result = wekan_api_call($wekan_url, "/users/login", NULL, $payload);
 
-    // Execute the POST request
-    $response = curl_exec($channel);
-
-    // Close connection
-    curl_close($channel);
-
-    // read json response
-    $result = json_decode($response, true);
-
+    // If response includes error, reload the page with error-message
     if (array_key_exists("error", $result) || $result == NULL) {
-        header("Location: " . $wekan_ical_url . "/?error=true");
+        header("Location: https://" . $wekan_ical_domain . "/?error=true");
     } else {
 
-        // create ical-url
-        $icalstring = hexdec( substr(sha1($username . " " . $password), 0, 15) );
+        // create ical-url (first 16 digits of hexdec'ed sha1 from user + pw)
+        $icalstring = hexdec(substr(sha1($username . " " . $password), 0, 15));
 
         // convert time stamp to UNIX
         $expire = strtotime($result['tokenExpires']);
@@ -70,7 +59,7 @@ if ($username != "" && $password != "") {
                     "ical=" . $icalstring . " WHERE username='" .
                     $username . "')";
                 if ($sqlcon->query($sqlque) === FALSE) {
-                    header("Location: " . $wekan_ical_url . "/?error=true");
+                    header("Location: https://" . $wekan_ical_domain . "/?error=true");
                 }
             }
         } else {
@@ -79,30 +68,58 @@ if ($username != "" && $password != "") {
                 VALUES ('" . $username . "','" . $result['token'] . "'," . $expire . ","
                 . $icalstring . ")";
             if ($sqlcon->query($sqlque) === FALSE) {
-                header("Location: " . $wekan_ical_url . "/?error=true");
+                header("Location: https://" . $wekan_ical_domain . "/?error=true");
             }
         }
         // Print HTML
-        print("<html><body><h1>Success!</h1>" .
+        print("<html><head>" .
+            "<title>Wekan Calendar Setup</title>" .
+            "<link rel='icon' href='https://" . $wekan_domain . "/favicon.ico' " .
+            "type='image/x-icon' sizes='16x16 32x32' />" .
+            "<meta name='viewport' content='width=device-width, initial-scale=1'>" .
+            "<style>" .
+            ".container{width:100%;max-width:800px;margin:auto auto auto auto;" .
+            "border: 3px solid #f1f1f1;}" .
+            "*{text-align:center;}" .
+            "ul,li{text-align:left;}" .
+            "a{color:#04AA6D;}" .
+            "</style></head>" .
+            "<body><div class='container'>" .
+            "<html><body><h1>Success!</h1>" .
             "<p>You successfully created a sync for your account.</p>" .
             "<ul><li>Username: " . $username .
             "</li><li>Calendar-URL: <a href='webcal://" . $wekan_ical_domain .
-            "/cal.php?id=" . $icalstring . "'>" . $wekan_ical_url .
+            "/cal.php?id=" . $icalstring . "'>https://" . $wekan_ical_domain .
             "/cal.php?id=" . $icalstring . "</a></li><li>Expire: " .
-            date('Y-m-d, H:i', $expire) . "</li></ul></body></html>");
+            date('Y-m-d, H:i', $expire) . "</li></ul></div></body></html>");
     }
 } else {
     if ($error == "true") {
         print("ERROR: Wrong Username & Password?\n");
     }
-    print("<html><body>" .
-        "<h1>" . $indh1 . "</h1><form action='' method='POST'>" .
+    print("<html><head>" .
+        "<title>Wekan Calendar Setup</title>" .
+        "<link rel='icon' href='https://" . $wekan_domain . "/favicon.ico' " .
+        "type='image/x-icon' sizes='16x16 32x32' />" .
+        "<meta name='viewport' content='width=device-width, initial-scale=1'>" .
+        "<style>" .
+        ".container{width:100%;max-width:800px;margin:auto auto auto auto;}" .
+        "*{text-align:center;}" .
+        "input[type=text],input[type=password]{width:100%;padding:12px 20px;" .
+        "margin:8px 0;display:inline-block;border:1px solid #ccc;" .
+        "box-sizing:border-box;}" .
+        "input[type=submit]{background-color:#04AA6D;color:#fff;padding:14px 20px;" .
+        "margin: 8px 0;border:none;width:100%;}" .
+        "input[type=submit]:hover{opacity:0.8;}" .
+        "</style></head>" .
+        "<body><div class='container'>" .
+        "<h1>Wekan Calendar Setup</h1><form action='' method='POST'>" .
         "<label for='username'><strong>Username</strong></label><br>" .
         "<input type='text' id='username' name='username' required='true'><br><br>" .
         "<label for='password'><strong>Password</strong></label><br>" .
         "<input type='password' id='password' name='password' required='true'>" .
         "<br><br><input class='button' type='submit' value='Login'></form>" .
-        "</body></html>");
+        "</div></body></html>");
 }
 ?>
 

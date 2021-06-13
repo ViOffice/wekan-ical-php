@@ -9,64 +9,13 @@ list($pwd) = preg_replace('/\/[^\/]+$/', "/", get_included_files());
 $conf_path = $pwd . "conf/common.php";
 include($conf_path);
 
-function wekan_api_call($url, $path, $auth) {
-    $channel = curl_init();
+// Load wekan API
+$wapi_path = $pwd . "libs/wekan_api.php";
+include($wapi_path);
 
-    curl_setopt($channel, CURLOPT_URL, $url . $path);
-    curl_setopt($channel, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($channel, CURLOPT_HTTPHEADER, array('Content-Type: application/json' , $auth ));
-
-    $response = curl_exec($channel);
-
-    curl_close($channel);
-
-    return json_decode($response, true);
-}
-
-function ical_create($url, $userid, $caldata) {
-
-// current time
-$ctime=date('His');
-$cdate=date('Ymd');
-
-// Define Filetype
-header("Content-Type: text/Calendar");
-header("Content-Disposition: inline; filename=calendar.ics");
-
-// Calendar Section
-echo "BEGIN:VCALENDAR\n";
-echo "VERSION:2.0\n";
-$tmp="PRODID:WeKan//" . $url . "\n";
-echo $tmp;
-echo "METHOD:PUBLISH\n";
-
-foreach ($caldata as $card) {
-
-    // Event Section
-    echo "BEGIN:VEVENT\n";
-    $tmp="UID:" . $userid . "@" . $url . "\n";
-    echo $tmp;
-    $tmp="SUMMARY:" . $card['board_name'] . " -> " . $card['lane_name'] . " -> " . $card['list_name'] . ": " . $card['card_name'] . "\n";
-    echo $tmp;
-    $tmp="DESCRIPTION:Board: " . $card['board_name'] . "\\nSwimlane: " . $card['lane_name'] . "\\nList: " . $card['list_name'] . "\\nCard: " . $card['card_name'] . "\\n" . $card['card_desc'] . "\\n";
-    foreach ($card['checklist'] as $cl) {
-        $tmp=$tmp . $cl['title'] . ":\\n" . implode("\\n", $cl['items']) . "\\n\\n";
-    }
-    $tmp=$tmp . "\n";
-    echo $tmp;
-    echo "CLASS:PUBLIC\n";
-    $tmp="DTSTART:" . $card['due'] . "\n";
-    echo $tmp;
-    $tmp="DTSTAMP:" . $cdate . "T" . $ctime . "\n";
-    echo $tmp;
-    $tmp="URL:" . $url . "/b/" . $card['board_id'] . "/x/" . $card['card_id'] . "\n";
-    echo "END:VEVENT\n";
-
-}
-
-// Calendar Section
-echo "END:VCALENDAR\n";
-}
+// Load ical builder
+$ical_path = $pwd . "libs/create_ical.php";
+include($ical_path);
 
 // Get user-input
 $id=$_GET["id"];
@@ -77,6 +26,7 @@ if ($sqlcon->connect_error) {
    die("Connection failed: " . $conn->connect_error);
 }
 
+// retrieve token
 $sqlque = "SELECT token FROM " . $sqltabl . " WHERE ical=" . $id;
 $sqlres = $sqlcon->query($sqlque);
 while ($row = $sqlres->fetch_assoc()) {
@@ -88,47 +38,61 @@ $result = array();
 $auth = "Authorization: Bearer " . $token;
 
 // Get User Information
-$user = wekan_api_call($wekan_url, "/api/user", $auth);
+$user = wekan_api_call("https://" . $wekan_domain, "/api/user", $auth, NULL);
 
 // Get user's boards
-$boards = wekan_api_call($wekan_url, "/api/users/" . $user['_id'] . "/boards", $auth);
+$boards = wekan_api_call("https://" . $wekan_domain, "/api/users/" . $user['_id'] . "/boards",
+    $auth, NULL);
 
 foreach ($boards as $board) {
 
     // Get lists
-    $lists = wekan_api_call($wekan_url, "/api/boards/" . $board['_id'] . "/lists", $auth);
+    $lists = wekan_api_call("https://" . $wekan_domain, "/api/boards/" . $board['_id'] . 
+        "/lists", $auth, NULL);
 
     foreach ($lists as $list) {
 
         // Get cards
-        $cards = wekan_api_call($wekan_url, "/api/boards/" . $board['_id'] . "/lists/" . $list['_id'] . "/cards", $auth);
+        $cards = wekan_api_call("https://" . $wekan_domain, "/api/boards/" . $board['_id'] . 
+            "/lists/" . $list['_id'] . "/cards", $auth, NULL);
         
         // Assign cards to swimlanes
         foreach ($cards as $card) {
 
             // Remove HTML from description
             if (array_key_exists("description", $card)) {
-                $card['description'] = preg_replace('/<br>/', '\\n', $card['description']);
-                $card['description'] = preg_replace('/<li>/', '\\n- ', $card['description']);
-                $card['description'] = preg_replace('/<.*?>/', '', $card['description']);
-            } else {
-                $card['description'] = "";
+                $card['description'] = preg_replace('/<br>/', '\\n',
+                    $card['description']);
+                $card['description'] = preg_replace('/<li>/', '\\n- ',
+                    $card['description']);
+                $card['description'] = preg_replace('/<.*?>/', '',
+                    $card['description']);
             }
 
             //Get card info
-            $cardinfo = wekan_api_call($wekan_url, "/api/boards/" . $board['_id'] . "/lists/" . $list['_id'] . "/cards/" . $card['_id'], $auth);
+            $cardinfo = wekan_api_call("https://" . $wekan_domain, "/api/boards/" .
+                $board['_id'] . "/lists/" . $list['_id'] . "/cards/" .
+                $card['_id'], $auth, NULL);
 
             // Get Swimlane
-            $lane = wekan_api_call($wekan_url, "/api/boards/" . $board['_id'] . "/swimlanes/" . $cardinfo['swimlaneId'], $auth);
+            $lane = wekan_api_call("https://" . $wekan_domain, "/api/boards/" . $board['_id'] .
+                "/swimlanes/" . $cardinfo['swimlaneId'], $auth, NULL);
 
             // Get Checklists
-            $checklists = wekan_api_call($wekan_url, "/api/boards/" . $board['_id'] . "/cards/" . $card['_id'] . "/checklists", $auth);
+            $checklists = wekan_api_call("https://" . $wekan_domain, "/api/boards/" .
+                $board['_id'] . "/cards/" . $card['_id'] . "/checklists",
+                $auth, NULL);
 
+            // Gather checklists in their own arrays
             $cls = array();
             foreach ($checklists as $checklist) {
-                
-                $clitems = wekan_api_call($wekan_url, "/api/boards/" . $board['_id'] . "/cards/" . $card['_id'] . "/checklists/" . $checklist['_id'], $auth);
 
+                // Get checklist items
+                $clitems = wekan_api_call("https://" . $wekan_domain, "/api/boards/" .
+                    $board['_id'] . "/cards/" . $card['_id'] . "/checklists/" .
+                    $checklist['_id'], $auth, NULL);
+
+                // Gather items in array
                 $items = array();
                 foreach ($clitems['items'] as $clitem) {
 
@@ -138,17 +102,18 @@ foreach ($boards as $board) {
                             } else {
                                 $item_status = "[ ]";
                             }
-                            $itemstring = "  " . $item_status . " " . $clitem['title'];
-                            array_push($items, $itemstring);
+                            $itemstr = $item_status . " " . $clitem['title'];
+                            array_push($items, $itemstr);
                         }
                 }
-
+                
+                // Add to checklist array
                 array_push($cls,
                     array("title" => $clitems['title'],
                           "items" => $items));
             }
 
-            // Create summary array
+            // Create summary array (only if due-date exists)
             if (array_key_exists("dueAt", $card)) {
                 array_push($result,
                     array("board_id" => $board['_id'],
@@ -168,6 +133,7 @@ foreach ($boards as $board) {
     }
 }
 
-ical_create($wekan_url, $user['_id'], $result);
+// Create ical file and return to user
+ical_create("https://" . $wekan_domain, $user['_id'], $result);
 
 ?>
