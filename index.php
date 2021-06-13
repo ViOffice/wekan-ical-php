@@ -28,7 +28,7 @@ if ($username != "" && $password != "") {
     $payload = json_encode($data);
 
     // Make API call
-    $result = wekan_api_call($wekan_url, "/users/login", NULL, $payload);
+    $result = wekan_api_call("https://" . $wekan_domain, "/users/login", NULL, $payload);
 
     // If response includes error, reload the page with error-message
     if (array_key_exists("error", $result) || $result == NULL) {
