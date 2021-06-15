@@ -106,7 +106,7 @@ if ($username != "" && $password != "") {
             . date('Y-m-d, H:i', $expire) . "</li></ul>" . 
             "<p>Subscribe via QR-code:<p><div class='center'><img src='" . 
             (new QRCode)->render("webcal://" . $sub_url) .
-            "alt='QR-Code' max-height='300px' height='100%' width='auto' />" .
+            "' alt='QRCode' max-height='300px' height='100%' width='auto' />" .
             "</div></div></body></html>");
     }
 } else {
