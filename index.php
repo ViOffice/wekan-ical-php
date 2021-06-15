@@ -104,7 +104,7 @@ if ($username != "" && $password != "") {
             "<a href='https://" . $sub_url . "'>" . 
             "<input type='submit' value='Download'></a><br>" .
             "<h3>Subscribe to calendar</h3>" .
-            "<a href=webcal://" . $sub_url . "'>" .
+            "<a href='webcal://" . $sub_url . "'>" .
             "<input type='submit' value='Subscribe'></a><br>" .
             "<h3>Expire</h3><p>" . date('Y-m-d, H:i', $expire) . "</p><br>" . 
             "<h3>Subscribe via QR-code<h3><img src='" . 
