@@ -99,7 +99,7 @@ if ($username != "" && $password != "") {
             "<body><div class='container'>" .
             "<html><body><h1>Success!</h1>" .
             "<p>You successfully created a sync for your account.</p>" .
-            "<h3>Username</h3><p>" . $username . "</p><br>"
+            "<h3>Username</h3><p>" . $username . "</p><br>" .
             "<h3>Download Calendar File</h3>" . 
             "<a href='https://" . $sub_url . "'>" . 
             "<input type='submit' value='Download'></a><br>" .
