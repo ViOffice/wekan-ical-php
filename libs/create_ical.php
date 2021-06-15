@@ -67,7 +67,8 @@ function ical_create($domain, $userid, $caldata, $extraevents = NULL) {
             $tmp="DESCRIPTION:" . $event['description'] . "\n";
             echo $tmp;
             // Due Date
-            $tmp="DTSTART:" . $event['due'] . "\n";
+            $tmp="DTSTART:" . date("Ymd", $event['due']) . "T" . 
+                date("His", $event['due']) . "\n";
             echo $tmp;
             $tmp="DTSTAMP:" . $cdate . "T" . $ctime . "\n";
             echo $tmp;
