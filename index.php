@@ -14,7 +14,7 @@ $wapi_path = $pwd . "libs/wekan_api.php";
 include($wapi_path);
 
 // Load external Libraries
-$3pqr_path = $pwd . "libs/3rdparty/php-qrcode/vendor/autoload.php";
+$tpqr_path = $pwd . "libs/3rdparty/php-qrcode/vendor/autoload.php";
 include($3pqr_path);
 use chillerlan\QRCode\{QRCode, QROptions};
 
