@@ -94,7 +94,7 @@ if ($username != "" && $password != "") {
             "input[type=submit]{background-color:#04AA6D;color:#fff;padding:14px 20px;" .
             "margin: 8px 0;border:none;width:100%;}".
             "input[type=submit]:hover{opacity:0.8;}" .
-            ".qrcode{height:auto;width:100%;max-width:250px;}" .
+            ".qrcode{height:auto;width:100%;max-width:400px;}" .
             "</style></head>" .
             "<body><div class='container'>" .
             "<html><body><h1>Success!</h1>" .
@@ -105,9 +105,9 @@ if ($username != "" && $password != "") {
             "<input type='submit' value='Download'></a><br>" .
             "<h3>Subscribe to calendar</h3>" .
             "<a href=webcal://" . $sub_url . "'>" .
-            "<input type='submit' value='Download'></a><br>" .
+            "<input type='submit' value='Subscribe'></a><br>" .
             "<h3>Expire</h3><p>" . date('Y-m-d, H:i', $expire) . "</p><br>" . 
-            "<p>Subscribe via QR-code:<p><img src='" . 
+            "<h3>Subscribe via QR-code<h3><img src='" . 
             (new QRCode)->render("webcal://" . $sub_url) .
             "' alt='QR-Code' class='qrcode center'/>" .
             "</div></body></html>");
