@@ -27,10 +27,11 @@ if ($sqlcon->connect_error) {
 }
 
 // retrieve token
-$sqlque = "SELECT token FROM " . $sqltabl . " WHERE ical=" . $id;
+$sqlque = "SELECT token, expire FROM " . $sqltabl . " WHERE ical=" . $id;
 $sqlres = $sqlcon->query($sqlque);
 while ($row = $sqlres->fetch_assoc()) {
     $token = $row['token'];
+    $expire = $row['expire'];
 }
 
 // Prepare
@@ -41,20 +42,20 @@ $auth = "Authorization: Bearer " . $token;
 $user = wekan_api_call("https://" . $wekan_domain, "/api/user", $auth, NULL);
 
 // Get user's boards
-$boards = wekan_api_call("https://" . $wekan_domain, "/api/users/" . $user['_id'] . "/boards",
-    $auth, NULL);
+$boards = wekan_api_call("https://" . $wekan_domain, "/api/users/" . 
+    $user['_id'] . "/boards", $auth, NULL);
 
 foreach ($boards as $board) {
 
     // Get lists
-    $lists = wekan_api_call("https://" . $wekan_domain, "/api/boards/" . $board['_id'] . 
-        "/lists", $auth, NULL);
+    $lists = wekan_api_call("https://" . $wekan_domain, "/api/boards/" . 
+        $board['_id'] . "/lists", $auth, NULL);
 
     foreach ($lists as $list) {
 
         // Get cards
-        $cards = wekan_api_call("https://" . $wekan_domain, "/api/boards/" . $board['_id'] . 
-            "/lists/" . $list['_id'] . "/cards", $auth, NULL);
+        $cards = wekan_api_call("https://" . $wekan_domain, "/api/boards/" . 
+            $board['_id'] . "/lists/" . $list['_id'] . "/cards", $auth, NULL);
         
         // Assign cards to swimlanes
         foreach ($cards as $card) {
@@ -70,27 +71,28 @@ foreach ($boards as $board) {
             }
 
             //Get card info
-            $cardinfo = wekan_api_call("https://" . $wekan_domain, "/api/boards/" .
-                $board['_id'] . "/lists/" . $list['_id'] . "/cards/" .
-                $card['_id'], $auth, NULL);
+            $cardinfo = wekan_api_call("https://" . $wekan_domain, 
+                "/api/boards/" . $board['_id'] . "/lists/" . $list['_id'] . 
+                "/cards/" . $card['_id'], $auth, NULL);
 
             // Get Swimlane
-            $lane = wekan_api_call("https://" . $wekan_domain, "/api/boards/" . $board['_id'] .
-                "/swimlanes/" . $cardinfo['swimlaneId'], $auth, NULL);
+            $lane = wekan_api_call("https://" . $wekan_domain, "/api/boards/" .
+                $board['_id'] . "/swimlanes/" . $cardinfo['swimlaneId'], $auth,
+                NULL);
 
             // Get Checklists
-            $checklists = wekan_api_call("https://" . $wekan_domain, "/api/boards/" .
-                $board['_id'] . "/cards/" . $card['_id'] . "/checklists",
-                $auth, NULL);
+            $checklists = wekan_api_call("https://" . $wekan_domain,
+                "/api/boards/" . $board['_id'] . "/cards/" . $card['_id'] . 
+                "/checklists", $auth, NULL);
 
             // Gather checklists in their own arrays
             $cls = array();
             foreach ($checklists as $checklist) {
 
                 // Get checklist items
-                $clitems = wekan_api_call("https://" . $wekan_domain, "/api/boards/" .
-                    $board['_id'] . "/cards/" . $card['_id'] . "/checklists/" .
-                    $checklist['_id'], $auth, NULL);
+                $clitems = wekan_api_call("https://" . $wekan_domain, 
+                    "/api/boards/" . $board['_id'] . "/cards/" . $card['_id'] .
+                    "/checklists/" . $checklist['_id'], $auth, NULL);
 
                 // Gather items in array
                 $items = array();
@@ -125,7 +127,7 @@ foreach ($boards as $board) {
                         "card_id" => $card['_id'],
                         "card_name" => $card['title'],
                         "card_desc" => $card['description'],
-                        "due" => preg_replace('/-|:|\.\d+/', "", $card['dueAt']),
+                        "due" => preg_replace('/-|:|\.\d+/',"",$card['dueAt']),
                         "checklist" => $cls));
             }
 
@@ -133,7 +135,15 @@ foreach ($boards as $board) {
     }
 }
 
+// Create Due date for re-login
+$relogin = array(
+    array("id" => "01",
+        "title" => "Refresh Calendar Sync",
+        "description" => "Please Login to Wekan Calendar Setup again",
+        "due" => $expire,
+        "url" => "https://" . $wekan_ical_domain));
+
 // Create ical file and return to user
-ical_create("https://" . $wekan_domain, $user['_id'], $result);
+ical_create("https://" . $wekan_domain, $user['_id'], $result, $relogin);
 
 ?>

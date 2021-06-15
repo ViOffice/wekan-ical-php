@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-only
 
-function ical_create($domain, $userid, $caldata) {
+function ical_create($domain, $userid, $caldata, $extraevents = NULL) {
 
     // current time
     $ctime=date('His');
@@ -25,7 +25,7 @@ function ical_create($domain, $userid, $caldata) {
     foreach ($caldata as $card) {
 
         echo "BEGIN:VEVENT\n";
-        $tmp="UID:" . $userid . "@" . $domain . "\n";
+        $tmp="UID:" . $card['card_id'] . "@" . $domain . "\n";
         echo $tmp;
         // Headline (Summary)
         $tmp="SUMMARY:" . $card['board_name'] . " -> " . $card['lane_name'] .
@@ -50,8 +50,32 @@ function ical_create($domain, $userid, $caldata) {
         echo $tmp;
         // URL to card
         $tmp="URL:https://" . $domain . "/b/" . $card['board_id'] . "/x/" . $card['card_id'] . "\n";
+        echo $tmp;
         echo "END:VEVENT\n";
 
+    }
+
+    if (!is_null($extraevents)) {
+        foreach ($extraevents as $event) {
+            echo "BEGIN:VEVENT\n";
+            $tmp="UID:" . $event['id'] . "@" . $domain . "\n";
+            echo $tmp;
+            // Summary
+            $tmp="SUMMARY:" . $event['title'] . "\n";
+            echo $tmp;
+            // Description
+            $tmp="DESCRIPTION:" . $event['description'] . "\n";
+            echo $tmp;
+            // Due Date
+            $tmp="DTSTART:" . $event['due'] . "\n";
+            echo $tmp;
+            $tmp="DTSTAMP:" . $cdate . "T" . $ctime . "\n";
+            echo $tmp;
+            // URL
+            $tmp="URL:" . $event['url'] . "\n";
+            echo $tmp;
+            echo "END:VEVENT\n";
+        }
     }
 
     // Calendar Section
