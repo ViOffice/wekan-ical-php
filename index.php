@@ -99,12 +99,14 @@ if ($username != "" && $password != "") {
             "<body><div class='container'>" .
             "<html><body><h1>Success!</h1>" .
             "<p>You successfully created a sync for your account.</p>" .
-            "<ul><li>Username: " . $username .
-            "</li><li>Download Calendar File: <a href='https://" . $sub_url . 
-            "'><input type='submit' value='Download'></a></li>" .
-            "<li>Subscribe to calendar: <a href=webcal://" . $sub_url . "'>" .
-            "<input type='submit' value='Download'></a></li><li>Expire: " 
-            . date('Y-m-d, H:i', $expire) . "</li></ul>" . 
+            "<h3>Username</h3><p>" . $username . "</p><br>"
+            "<h3>Download Calendar File</h3>" . 
+            "<a href='https://" . $sub_url . "'>" . 
+            "<input type='submit' value='Download'></a><br>" .
+            "<h3>Subscribe to calendar</h3>" .
+            "<a href=webcal://" . $sub_url . "'>" .
+            "<input type='submit' value='Download'></a><br>" .
+            "<h3>Expire</h3><p>" . date('Y-m-d, H:i', $expire) . "</p><br>" . 
             "<p>Subscribe via QR-code:<p><img src='" . 
             (new QRCode)->render("webcal://" . $sub_url) .
             "' alt='QR-Code' class='qrcode center'/>" .
