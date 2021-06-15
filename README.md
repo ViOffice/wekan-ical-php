@@ -32,6 +32,35 @@ chmod +x ./install_all.sh
 sudo -u www-data ./install_all.sh
 ```
 
+## Deployment
+
+Use the sample configuration `conf/common.php.sample` to create your
+configuration file:
+```
+cp conf/common.php.sample conf/common.php
+vi conf/common.php
+```
+
+Create a MariaDB/MySQL database with the credentials supplied in the
+`common.php` config file:
+```
+CREATE DATABASE name_of_db;
+
+USE name_of_db;
+
+CREATE TABLE name_of_table (
+    username CHAR(100),
+    token CHAR(100),
+    expire BIGINT,
+    ical BIGINT)
+
+CREATE USER name_of_user@localhost IDENTIFIED BY 'your-secure-pw';
+
+GRANT ALL PRIVILEGES ON name_of_db.* to name_of_user@localhost;
+
+FLUSH PRIVILEGES;
+```
+
 ## Version-Upgrade
 
 If you are running wekan-ical-php straight from `main` branch:
