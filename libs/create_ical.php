@@ -17,7 +17,7 @@ function ical_create($domain, $userid, $caldata) {
     // Calendar Section
     echo "BEGIN:VCALENDAR\n";
     echo "VERSION:2.0\n";
-    $tmp="PRODID:WeKan//" . $url . "\n";
+    $tmp="PRODID:wekan//" . $domain . "\n";
     echo $tmp;
     echo "METHOD:PUBLISH\n";
 

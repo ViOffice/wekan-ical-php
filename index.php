@@ -15,7 +15,7 @@ include($wapi_path);
 
 // Load external Libraries
 $tpqr_path = $pwd . "libs/3rdparty/php-qrcode/vendor/autoload.php";
-include($3pqr_path);
+include($tpqr_path);
 use chillerlan\QRCode\{QRCode, QROptions};
 
 // Get user-input
@@ -92,7 +92,7 @@ if ($username != "" && $password != "") {
             "ul,li{text-align:left;}" .
             "a{color:#04AA6D;}" .
             "input[type=submit]{background-color:#04AA6D;color:#fff;padding:14px 20px;" .
-            "margin: 8px 0;border:none;width:100%;}" .
+            "margin: 8px 0;border:none;}" .
             "input[type=submit]:hover{opacity:0.8;}" .
             "</style></head>" .
             "<body><div class='container'>" .
@@ -102,9 +102,9 @@ if ($username != "" && $password != "") {
             "</li><li>Download Calendar File: <a href='https://" . $sub_url . 
             "'><input type='submit' value='Download'></a></li>" .
             "<li>Subscribe to calendar: <a href=webcal://" . $sub_url . "'>" .
-            "<li>Expire: " . date('Y-m-d, H:i', $expire) . 
-            "</li></ul><p>Subscribe via QR-code:<p>" .
-            "<div class='center'><img src='" . 
+            "</a></li><li>Expire: " . date('Y-m-d, H:i', $expire) . 
+            "</li></ul>" . 
+            "<p>Subscribe via QR-code:<p><div class='center'><img src='" . 
             (new QRCode)->render("webcal://" . $sub_url) .
             "alt='QR-Code' max-height='300px' height='100%' width='auto' />" .
             "</div></div></body></html>");
