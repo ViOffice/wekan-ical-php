@@ -13,6 +13,11 @@ include($conf_path);
 $wapi_path = $pwd . "libs/wekan_api.php";
 include($wapi_path);
 
+// Load external Libraries
+$3pqr_path = $pwd . "libs/3rdparty/php-qrcode/vendor/autoload.php";
+include($3pqr_path);
+use chillerlan\QRCode\{QRCode, QROptions};
+
 // Get user-input
 $username=$_POST["username"];
 $password=$_POST["password"];
@@ -72,6 +77,8 @@ if ($username != "" && $password != "") {
             }
         }
         // Print HTML
+
+        $sub_url = $wekan_ical_domain . "/cal.php?id=" . $icalstring;
         print("<html><head>" .
             "<title>Wekan Calendar Setup</title>" .
             "<link rel='icon' href='https://" . $wekan_domain . "/favicon.ico' " .
@@ -79,19 +86,28 @@ if ($username != "" && $password != "") {
             "<meta name='viewport' content='width=device-width, initial-scale=1'>" .
             "<style>" .
             ".container{width:100%;max-width:800px;margin:auto auto auto auto;" .
+            ".center{margin-left:auto;margin-right:auto;text-align:center;}" .
             "border: 3px solid #f1f1f1;}" .
             "*{text-align:center;}" .
             "ul,li{text-align:left;}" .
             "a{color:#04AA6D;}" .
+            "input[type=submit]{background-color:#04AA6D;color:#fff;padding:14px 20px;" .
+            "margin: 8px 0;border:none;width:100%;}" .
+            "input[type=submit]:hover{opacity:0.8;}" .
             "</style></head>" .
             "<body><div class='container'>" .
             "<html><body><h1>Success!</h1>" .
             "<p>You successfully created a sync for your account.</p>" .
             "<ul><li>Username: " . $username .
-            "</li><li>Calendar-URL: <a href='webcal://" . $wekan_ical_domain .
-            "/cal.php?id=" . $icalstring . "'>https://" . $wekan_ical_domain .
-            "/cal.php?id=" . $icalstring . "</a></li><li>Expire: " .
-            date('Y-m-d, H:i', $expire) . "</li></ul></div></body></html>");
+            "</li><li>Download Calendar File: <a href='https://" . $sub_url . 
+            "'><input type='submit' value='Download'></a></li>" .
+            "<li>Subscribe to calendar: <a href=webcal://" . $sub_url . "'>" .
+            "<li>Expire: " . date('Y-m-d, H:i', $expire) . 
+            "</li></ul><p>Subscribe via QR-code:<p>" .
+            "<div class='center'><img src='" . 
+            (new QRCode)->render("webcal://" . $sub_url) .
+            "alt='QR-Code' max-height='300px' height='100%' width='auto' />" .
+            "</div></div></body></html>");
     }
 } else {
     if ($error == "true") {
@@ -118,7 +134,7 @@ if ($username != "" && $password != "") {
         "<input type='text' id='username' name='username' required='true'><br><br>" .
         "<label for='password'><strong>Password</strong></label><br>" .
         "<input type='password' id='password' name='password' required='true'>" .
-        "<br><br><input class='button' type='submit' value='Login'></form>" .
+        "<br><br><input type='submit' value='Login'></form>" .
         "</div></body></html>");
 }
 ?>

@@ -7,6 +7,9 @@ Calendar Synchronisation for Wekan. Supports single ical files or webcal sync.
 ## Requirements:
 
 * PHP (>=7)
+    * `php-curl`
+    * [`php-qrcode`](https://github.com/chillerlan/php-qrcode)
+    * `php-mysql`
 
 * Webserver with PHP support (e.g. Apache2)
 
