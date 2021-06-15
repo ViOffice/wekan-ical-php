@@ -1,6 +1,6 @@
 # wekan-ical-php
 
-[![reuse compliant](https://reuse.software/badge/reuse-compliant.svg)](https://reuse.software/) [![Hosted on Codeberg](https://img.shields.io/badge/Codeberg-Main%20Repository-blue.svg)](https://codeberg.org/ViOffice/wekan-ical-php) [![Github Mirror](https://img.shields.io/badge/Github-Mirror-blue.svg)](https://github.com/ViOffice/wekan-ical-php) [![Latest Release](https://img.shields.io/badge/Latest-0.0.2-green.svg)](https://codeberg.org/ViOffice/Planado/releases/tag/0.0.2)
+[![reuse compliant](https://reuse.software/badge/reuse-compliant.svg)](https://reuse.software/) [![Hosted on Codeberg](https://img.shields.io/badge/Codeberg-Main%20Repository-blue.svg)](https://codeberg.org/ViOffice/wekan-ical-php) [![Github Mirror](https://img.shields.io/badge/Github-Mirror-blue.svg)](https://github.com/ViOffice/wekan-ical-php) [![Latest Release](https://img.shields.io/badge/Latest-0.0.2-green.svg)](https://codeberg.org/ViOffice/wekan-ical-php/releases/tag/0.0.2)
 
 Calendar Synchronisation for Wekan. Supports single ical files or webcal sync.
 
