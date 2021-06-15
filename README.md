@@ -27,6 +27,7 @@ apt install apache2 php libapache2-mod-php mariadb-server php
 apt install php-curl php-mysql
 
 # 3rdparty libraries
+apt install composer
 cd libs/
 chmod +x ./install_all.sh
 sudo -u www-data ./install_all.sh
