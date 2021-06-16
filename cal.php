@@ -62,7 +62,7 @@ foreach ($boards as $board) {
 
             // Remove HTML from description
             if (array_key_exists("description", $card)) {
-                $card['description'] = preg_replace('/<br>/', '\\n',
+                $card['description'] = preg_replace('/<(br|\/p|\/li)>/', '\\n',
                     $card['description']);
                 $card['description'] = preg_replace('/<li>/', '\\n- ',
                     $card['description']);

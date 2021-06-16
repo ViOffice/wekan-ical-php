@@ -34,7 +34,7 @@ function ical_create($domain, $userid, $caldata, $extraevents = NULL) {
         // Body (Description)
         $tmp="DESCRIPTION:Board: " . $card['board_name'] . "\\nSwimlane: " .
             $card['lane_name'] . "\\nList: " . $card['list_name'] .
-            "\\nCard: " . $card['card_name'] . "\\n" . $card['card_desc'] .
+            "\\nCard: " . $card['card_name'] . "\\n\\n" . $card['card_desc'] .
             "\\n";
         // Add Checklist if available
         foreach ($card['checklist'] as $cl) {
